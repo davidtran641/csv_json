@@ -2,9 +2,17 @@ package convert
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+var (
+	dict = map[string]string{
+		"English": "en",
+		"Viet":    "vi",
+	}
 )
 
 func TestConvertKey(t *testing.T) {
@@ -16,14 +24,20 @@ func TestConvertKey(t *testing.T) {
 			"English",
 			"en",
 		},
+
+		{
+			"Abc",
+			"",
+		},
 	}
 
 	for _, c := range cases {
 		tc := c
 		t.Run(tc.input, func(t *testing.T) {
+			convert := NewConverter(dict)
 			got := convert(tc.input)
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
 }
@@ -49,7 +63,7 @@ func TestReadCsv(t *testing.T) {
 			reader := strings.NewReader(tc.input)
 			got := readCSV(reader)
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
 }
@@ -74,7 +88,7 @@ func TestConvertHeader(t *testing.T) {
 		t.Run(fmt.Sprintf("test:%d", i), func(t *testing.T) {
 			got := convertHeader(tc.input)
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
 }
@@ -106,7 +120,7 @@ func TestTransformHeader(t *testing.T) {
 		t.Run(fmt.Sprintf("test:%d", i), func(t *testing.T) {
 			got := transformHeader(tc.input, convert)
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
 }
@@ -119,8 +133,8 @@ func testParse(t *testing.T) {
 		{
 			"English,Malay,NonKey\n1,2,3\na,b,c",
 			[]map[string]string{
-				map[string]string{"English": "1", "Malay": "2"},
-				map[string]string{"English": "a", "Malay": "b"},
+				{"English": "1", "Malay": "2"},
+				{"English": "a", "Malay": "b"},
 			},
 		},
 	}
@@ -129,9 +143,9 @@ func testParse(t *testing.T) {
 		tc := c
 		t.Run(fmt.Sprintf("test:%d", i), func(t *testing.T) {
 			reader := strings.NewReader(tc.input)
-			got := Parse(reader)
+			got := Parse(reader, NewConverter(dict))
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
 }
@@ -156,7 +170,7 @@ func TestCheckEmptyRow(t *testing.T) {
 		t.Run(fmt.Sprintf("test:%d", i), func(t *testing.T) {
 			got := isEmptyRow(tc.input)
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
 }
@@ -181,16 +195,7 @@ func TestCheckEmptyDict(t *testing.T) {
 		t.Run(fmt.Sprintf("test:%d", i), func(t *testing.T) {
 			got := isEmptyDict(tc.input)
 			want := tc.want
-			assertEqual(t, want, got)
+			assert.Equal(t, want, got)
 		})
 	}
-}
-
-func assertEqual(t *testing.T, want interface{}, got interface{}) {
-	t.Helper()
-	if reflect.DeepEqual(want, got) {
-		return
-	}
-
-	t.Errorf("want %v, but got %v", want, got)
 }

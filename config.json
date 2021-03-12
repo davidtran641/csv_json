@@ -1,0 +1,11 @@
+{
+  "header_mapping": {
+    "English":            "en",
+		"Malay":              "ms",
+		"Simplified Chinese": "zh",
+		"Vietnamese":         "vi",
+		"Thai":               "th",
+		"Burmese (Unicode)":  "my",
+		"Khmer":              "kh"
+  }
+}

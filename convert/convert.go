@@ -6,14 +6,14 @@ import (
 	"log"
 )
 
-func Parse(reader io.Reader) []map[string]string {
+func Parse(reader io.Reader, converter ConvertFunc) []map[string]string {
 	rows := readCSV(reader)
 	rowsDict := convertHeader(rows)
 
 	results := []map[string]string{}
 
 	for _, row := range rowsDict {
-		res := transformHeader(row, convert)
+		res := transformHeader(row, converter)
 		if isEmptyDict(res) {
 			continue
 		}
@@ -25,22 +25,15 @@ func Parse(reader io.Reader) []map[string]string {
 
 type ConvertFunc func(key string) string
 
-func convert(key string) string {
-	dict := map[string]string{
-		"English":            "en",
-		"Malay":              "ms",
-		"Simplified Chinese": "zh",
-		"Vietnamese":         "vi",
-		"Thai":               "th",
-		"Burmese (Unicode)":  "my",
-		"Khmer":              "kh",
+func NewConverter(dict map[string]string) ConvertFunc {
+	return func(key string) string {
+		v, ok := dict[key]
+		if ok {
+			return v
+		}
+		log.Printf("Key not found: %s", key)
+		return ""
 	}
-	v, ok := dict[key]
-	if ok {
-		return v
-	}
-	log.Printf("Key not found: %s", key)
-	return ""
 }
 
 func readCSV(reader io.Reader) [][]string {

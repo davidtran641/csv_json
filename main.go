@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/davidtran641/csv_json/config"
 	"github.com/davidtran641/csv_json/convert"
 )
 
@@ -22,7 +23,8 @@ func main() {
 		return
 	}
 
-	res := convert.Parse(reader)
+	config := config.LoadConfig()
+	res := convert.Parse(reader, convert.NewConverter(config.HeaderMapping))
 
 	buf, err := json.MarshalIndent(res, "", " ")
 	if err != nil {
